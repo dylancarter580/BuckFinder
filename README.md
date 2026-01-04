@@ -8,7 +8,16 @@ AI-powered trail camera photo filter for macOS. Automatically identifies photos 
 
 **[Download Latest Release](../../releases/latest)** - One-click download of the `.dmg` installer.
 
-> ⚠️ **First Run**: Since the app isn't notarized, right-click → Open → Open to bypass Gatekeeper.
+### Installation Steps
+
+1. **Download** the `.dmg` file from the latest release
+2. **Open** the DMG and drag BuckFinder to Applications
+3. **Remove quarantine attribute** (required for unsigned apps):
+   - Open **Terminal** (Cmd+Space, type "Terminal")
+   - Run: `xattr -cr /Applications/BuckFinder.app`
+4. **Launch** BuckFinder from Applications
+
+> ⚠️ **"Damaged" Error?** This happens because the app isn't code-signed. Just run the Terminal command above to fix it.
 
 ## Features
 
