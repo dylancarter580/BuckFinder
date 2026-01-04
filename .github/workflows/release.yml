@@ -1,0 +1,71 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-14  # M1 runner for ARM64 builds
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Rust
+        uses: dtolnay/rust-action@stable
+        with:
+          targets: aarch64-apple-darwin
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build Swift CLI
+        run: |
+          cd buck-detector
+          swift build -c release
+          cd ..
+
+      - name: Prepare resources
+        run: |
+          mkdir -p src-tauri/resources
+          cp buck-detector/.build/release/buck-detector src-tauri/resources/
+          # Copy the model package (will be compiled on first run)
+          cp -rf best.mlpackage src-tauri/resources/
+
+      - name: Build Tauri app
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: ${{ github.ref_name }}
+          releaseName: 'BuckFinder ${{ github.ref_name }}'
+          releaseBody: |
+            ## BuckFinder ${{ github.ref_name }}
+            
+            AI-powered trail camera photo filter for macOS (Apple Silicon).
+            
+            ### Installation
+            1. Download the `.dmg` file below
+            2. Open the DMG and drag BuckFinder to Applications
+            3. On first launch: Right-click the app → Open → Open (to bypass Gatekeeper)
+            
+            ### Requirements
+            - macOS 12.0 (Monterey) or later
+            - Apple Silicon Mac (M1/M2/M3/M4) recommended
+          releaseDraft: false
+          prerelease: false
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: BuckFinder-macOS
+          path: src-tauri/target/release/bundle/dmg/*.dmg

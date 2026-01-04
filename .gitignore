@@ -1,0 +1,21 @@
+# Dependencies
+node_modules/
+target/
+dist/
+.build/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# Build artifacts
+*.dmg
+*.app
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Compiled Core ML model
+best.mlmodelc/
